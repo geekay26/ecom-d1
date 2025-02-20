@@ -1,0 +1,30 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ProductGrid from "../../components/ProductGrid";
+import CategoryNav from "../../components/CategoryNav.astro";
+import { getProductsByCategory } from "../../lib/products";
+import { productData } from "../../lib/mockData";
+
+export async function getStaticPaths() {
+  // Get unique categories from mock data
+  const categories = [
+    ...new Set(productData.map((product) => product.category)),
+  ];
+
+  return categories.map((category) => ({
+    params: { category },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.params;
+const products = await getProductsByCategory(category);
+const categories = [...new Set(productData.map((p) => p.category))];
+---
+
+<Layout title={`${category} Products`}>
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <CategoryNav categories={categories} activeCategory={category} />
+    <ProductGrid client:load products={products} />
+  </div>
+</Layout>

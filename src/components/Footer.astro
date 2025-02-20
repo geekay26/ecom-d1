@@ -1,0 +1,61 @@
+---
+import { Database } from "lucide-react";
+
+const links = {
+  Product: [
+    { name: "Features", href: "#features" },
+    { name: "Live Demo", href: "#demo" },
+    { name: "Pricing", href: "#pricing" },
+    { name: "Documentation", href: "#documentation" },
+  ],
+  Company: [
+    { name: "About", href: "#about" },
+    { name: "Blog", href: "#blog" },
+    { name: "Careers", href: "#careers" },
+    { name: "Contact", href: "#contact" },
+  ],
+  Resources: [
+    { name: "Documentation", href: "#docs" },
+    { name: "API Reference", href: "#api" },
+    { name: "Status", href: "#status" },
+    { name: "Security", href: "#security" },
+  ],
+};
+---
+
+<footer class="bg-gray-900 text-white py-12">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center mb-4">
+          <Database class="h-8 w-8 text-blue-400" />
+          <span class="ml-2 text-xl font-bold">ReplicateDB</span>
+        </div>
+        <p class="text-gray-400">
+          Enterprise-grade database replication for modern applications
+        </p>
+      </div>
+
+      {
+        Object.entries(links).map(([category, items]) => (
+          <div>
+            <h3 class="text-lg font-semibold mb-4">{category}</h3>
+            <ul class="space-y-2">
+              {items.map((item) => (
+                <li>
+                  <a href={item.href} class="text-gray-400 hover:text-white">
+                    {item.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
+      <p>&copy; {new Date().getFullYear()} ReplicateDB. All rights reserved.</p>
+    </div>
+  </div>
+</footer>;

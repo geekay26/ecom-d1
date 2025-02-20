@@ -1,0 +1,23 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ProductDetail from "../../components/ProductDetail";
+import { getProduct } from "../../lib/products";
+import { productData } from "../../lib/mockData";
+
+export async function getStaticPaths() {
+  return productData.map((product) => ({
+    params: { id: product.id },
+    props: { product },
+  }));
+}
+
+const { product } = Astro.props;
+
+if (!product) {
+  return Astro.redirect("/404");
+}
+---
+
+<Layout title={product.name}>
+  <ProductDetail client:load product={product} />
+</Layout>
