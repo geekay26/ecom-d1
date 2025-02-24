@@ -1,5 +1,3 @@
-import { mockDb } from "./mockData";
-
 interface Product {
   id: string;
   name: string;
@@ -10,14 +8,6 @@ interface Product {
   last_updated: string;
   created_at: string;
 }
-
-export const getProducts = () => mockDb.getProducts();
-export const getProduct = (id: string) => mockDb.getProduct(id);
-export const getProductsByCategory = (category: string) =>
-  mockDb.getProductsByCategory(category);
-export const updateProduct = (id: string, data: any) =>
-  mockDb.updateProduct(id, data);
-export const syncProductsFromERP = () => mockDb.syncProductsFromERP();
 
 export const updateProductInDatabase = async (
   db: D1Database,
@@ -72,31 +62,58 @@ export const createProductInDatabase = async (
   }
 };
 
-export const getProductFromDatabase = async (db: D1Database, id: string) => {
+export const getProductFromDatabase = async (session, id: string) => {
   try {
     if (!id) {
       throw new Error("No ID provided");
     }
-    const result = await db
+
+    const result = await session
       .prepare("SELECT * FROM products WHERE id = ?")
       .bind(id)
       .first();
 
-    return result;
+    const newBookmark = session.getBookmark();
+    return { result, newBookmark };
   } catch (error) {
     throw new Error(`Failed to get product from database: ${error.message}`);
   }
 };
 
-export const getProductsFromDatabase = async (
-  db: D1Database,
-  bookmark?: string
-) => {
+export const getProductsFromDatabase = async (session) => {
   try {
-    const session = db.withSession(bookmark ? bookmark : "first-unconstrained");
-    const results = await session.prepare("SELECT * FROM products").run();
-    return results;
+    const { results } = await session.prepare("SELECT * FROM products").run();
+    const newBookmark = session.getBookmark();
+    return { results, newBookmark };
   } catch (error) {
     throw new Error(`Failed to get products from database: ${error.message}`);
+  }
+};
+
+export const getProductsByCategoryFromDatabase = async (
+  session,
+  category: string
+) => {
+  try {
+    const { results } = await session
+      .prepare("SELECT * FROM products WHERE category = ?")
+      .bind(category)
+      .run();
+    const newBookmark = session.getBookmark();
+    return { results, newBookmark };
+  } catch (error) {
+    throw new Error(`Failed to get products from database: ${error.message}`);
+  }
+};
+
+export const getAllCategoriesFromDatabase = async (session) => {
+  try {
+    const { results } = await session
+      .prepare("SELECT DISTINCT category FROM products ORDER BY category ASC")
+      .run();
+    const newBookmark = session.getBookmark();
+    return { results, newBookmark };
+  } catch (error) {
+    throw new Error(`Failed to get categories from database: ${error.message}`);
   }
 };

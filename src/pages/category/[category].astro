@@ -2,29 +2,36 @@
 import Layout from "../../layouts/Layout.astro";
 import ProductGrid from "../../components/ProductGrid";
 import CategoryNav from "../../components/CategoryNav.astro";
-import { getProductsByCategory } from "../../lib/products";
-import { productData } from "../../lib/mockData";
-
-export async function getStaticPaths() {
-  // Get unique categories from mock data
-  const categories = [
-    ...new Set(productData.map((product) => product.category)),
-  ];
-
-  return categories.map((category) => ({
-    params: { category },
-    props: { category },
-  }));
-}
+import {
+  getAllCategoriesFromDatabase,
+  getProductsByCategoryFromDatabase,
+} from "../../lib/products";
 
 const { category } = Astro.params;
-const products = await getProductsByCategory(category);
-const categories = [...new Set(productData.map((p) => p.category))];
+if (!category) {
+  return Astro.redirect("/404");
+}
+
+const db = Astro.locals.runtime.env.DB;
+
+const bookmark =
+  Astro.cookies.get("product_bookmark")?.value || "first-unconstrained";
+const session = db.withSession(bookmark);
+
+const { results: categoryResults } =
+  await getAllCategoriesFromDatabase(session);
+
+const { results, newBookmark } = await getProductsByCategoryFromDatabase(
+  session,
+  category
+);
+const categories = [
+  ...new Set(categoryResults.map((p) => p.category)),
+] as string[];
+Astro.cookies.set("product_bookmark", newBookmark);
 ---
 
 <Layout title={`${category} Products`}>
-  <div class="max-w-7xl mx-auto px-4 py-8">
-    <CategoryNav categories={categories} activeCategory={category} />
-    <ProductGrid client:load products={products} />
-  </div>
+  <CategoryNav categories={categories} activeCategory={category} />
+  <ProductGrid client:load products={results} />
 </Layout>

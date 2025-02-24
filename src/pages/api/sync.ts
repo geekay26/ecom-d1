@@ -23,13 +23,12 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
   try {
     const product = productSchema.parse(body);
     const { id } = product;
-    console.log(id);
     const db = locals.runtime.env.DB;
-
+    const session = db.withSession("first-primary");
+    console.log("bookmark in sync", cookies.get("product_bookmark")?.value);
     // Check if product exists
-    const existingProduct = await getProductFromDatabase(db, id);
-    console.log(existingProduct);
-    if (existingProduct) {
+    const existingProduct = await getProductFromDatabase(session, id);
+    if (existingProduct.result) {
       console.log("updating product");
       // Update existing product
       const { bookmark } = await updateProductInDatabase(db, id, product);

@@ -1,28 +1,25 @@
 ---
-export const prerender = false;
-
 import Layout from "../layouts/Layout.astro";
 import ProductGrid from "../components/ProductGrid";
 import CategoryNav from "../components/CategoryNav.astro";
-import { getProducts } from "../lib/products";
+import { getProductsFromDatabase } from "../lib/products";
 
-// Get cookie from request
-const isBookmark = Astro.cookies.has("product_bookmark");
-const bookmark = isBookmark
-  ? Astro.cookies.get("product_bookmark")?.value
-  : null;
-console.log("Bookmark cookie value:", bookmark);
+const db = Astro.locals.runtime.env.DB;
 
-// Fetch products from read replica
-const products = await getProducts();
-const categories = [...new Set(products.map((p) => p.category))];
+const bookmark =
+  Astro.cookies.get("product_bookmark")?.value || "first-unconstrained";
+const session = db.withSession(bookmark);
+
+const { results, newBookmark } = await getProductsFromDatabase(session);
+
+Astro.cookies.set("product_bookmark", newBookmark);
+
+const categories = [
+  ...new Set(results.map((p) => p.category)),
+].sort() as string[];
 ---
 
 <Layout title="E-commerce Store">
-  <div class="max-w-7xl mx-auto px-4 py-8">
-    <CategoryNav categories={categories} />
-    <ProductGrid client:load products={products} />
-    <!-- Debug element to see value in rendered HTML -->
-    {(<div class="hidden">Debug bookmark: {bookmark || "no bookmark"}</div>)}
-  </div>
+  <CategoryNav categories={categories} />
+  <ProductGrid client:load products={results} />
 </Layout>

@@ -1,23 +1,23 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import ProductDetail from "../../components/ProductDetail";
-import { getProduct } from "../../lib/products";
-import { productData } from "../../lib/mockData";
+import { getProductFromDatabase } from "../../lib/products";
 
-export async function getStaticPaths() {
-  return productData.map((product) => ({
-    params: { id: product.id },
-    props: { product },
-  }));
-}
-
-const { product } = Astro.props;
-
-if (!product) {
+const { id } = Astro.params;
+if (!id) {
   return Astro.redirect("/404");
 }
+
+const bookmark = Astro.cookies.get("product_bookmark")?.value;
+
+const db = Astro.locals.runtime.env.DB;
+const session = db.withSession(bookmark);
+
+const { result, newBookmark } = await getProductFromDatabase(session, id);
+
+Astro.cookies.set("product_bookmark", newBookmark);
 ---
 
-<Layout title={product.name}>
-  <ProductDetail client:load product={product} />
+<Layout title={result.name}>
+  <ProductDetail client:load product={result} />
 </Layout>

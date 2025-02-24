@@ -25,5 +25,6 @@ export default defineConfig({
         "react-dom/server": "react-dom/server.edge",
       } : undefined
     }
-  }
+  },
+  output: "server"
 });
