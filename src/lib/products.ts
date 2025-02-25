@@ -82,9 +82,11 @@ export const getProductFromDatabase = async (session, id: string) => {
 
 export const getProductsFromDatabase = async (session) => {
   try {
-    const { results } = await session.prepare("SELECT * FROM products").run();
+    const { results, meta } = await session
+      .prepare("SELECT * FROM products")
+      .run();
     const newBookmark = session.getBookmark();
-    return { results, newBookmark };
+    return { results, newBookmark, meta };
   } catch (error) {
     throw new Error(`Failed to get products from database: ${error.message}`);
   }

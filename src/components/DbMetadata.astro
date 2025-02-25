@@ -1,0 +1,20 @@
+---
+interface Props {
+  region: string;
+  duration: number;
+  isPrimary: boolean;
+}
+
+const { region, duration, isPrimary } = Astro.props;
+---
+
+<div class="text-sm text-gray-600 p-2 bg-gray-100 rounded-md inline-block">
+  <span class="font-medium">DB Region:</span>
+  {region} |
+  <span class="font-medium">Type:</span>
+  <span class={isPrimary ? "text-blue-600" : "text-green-600"}>
+    {isPrimary ? "Primary" : "Replica"}
+  </span> |
+  <span class="font-medium">Query Time:</span>
+  {duration.toFixed(2)}ms
+</div>

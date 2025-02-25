@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import ProductGrid from "../components/ProductGrid";
 import CategoryNav from "../components/CategoryNav.astro";
+import DbMetadata from "../components/DbMetadata.astro";
 import { getProductsFromDatabase } from "../lib/products";
 
 const db = Astro.locals.runtime.env.DB;
@@ -10,8 +11,7 @@ const bookmark =
   Astro.cookies.get("product_bookmark")?.value || "first-unconstrained";
 const session = db.withSession(bookmark);
 
-const { results, newBookmark } = await getProductsFromDatabase(session);
-
+const { results, newBookmark, meta } = await getProductsFromDatabase(session);
 Astro.cookies.set("product_bookmark", newBookmark);
 
 const categories = [
@@ -20,6 +20,13 @@ const categories = [
 ---
 
 <Layout title="E-commerce Store">
+  <div class="mb-4">
+    <DbMetadata
+      region={meta.served_by_region}
+      duration={meta.duration}
+      isPrimary={meta.served_by_primary}
+    />
+  </div>
   <CategoryNav categories={categories} />
   <ProductGrid client:load products={results} />
 </Layout>
