@@ -1,11 +1,12 @@
 ---
 interface Props {
   region: string;
-  duration: number;
+  queryDuration: number;
+  d1Duration: number;
   isPrimary: boolean;
 }
 
-const { region, duration, isPrimary } = Astro.props;
+const { region, queryDuration, isPrimary, d1Duration } = Astro.props;
 ---
 
 <div class="text-sm text-gray-600 p-2 bg-gray-100 rounded-md inline-block">
@@ -16,5 +17,7 @@ const { region, duration, isPrimary } = Astro.props;
     {isPrimary ? "Primary" : "Replica"}
   </span> |
   <span class="font-medium">Query Time:</span>
-  {duration.toFixed(2)}ms
+  {queryDuration.toFixed(2)}ms |
+  <span class="font-medium">D1 Duration:</span>
+  {d1Duration.toFixed(2)}ms
 </div>

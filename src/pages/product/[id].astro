@@ -14,7 +14,7 @@ const bookmark = Astro.cookies.get("product_bookmark")?.value;
 const db = Astro.locals.runtime.env.DB;
 const session = db.withSession(bookmark);
 
-const { results, newBookmark, meta } = await getProductFromDatabase(
+const { results, newBookmark, meta, d1Duration } = await getProductFromDatabase(
   session,
   id
 );
@@ -26,8 +26,9 @@ Astro.cookies.set("product_bookmark", newBookmark);
   <div class="mb-4">
     <DbMetadata
       region={meta.served_by_region}
-      duration={meta.duration}
+      queryDuration={meta.duration}
       isPrimary={meta.served_by_primary}
+      d1Duration={d1Duration}
     />
   </div>
   <ProductDetail client:load product={results[0]} />

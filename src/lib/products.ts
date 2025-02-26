@@ -67,14 +67,14 @@ export const getProductFromDatabase = async (session, id: string) => {
     if (!id) {
       throw new Error("No ID provided");
     }
-
+    const tsStart = Date.now();
     const { results, meta } = await session
       .prepare("SELECT * FROM products WHERE id = ?")
       .bind(id)
       .run();
-
+    const d1Duration = Date.now() - tsStart;
     const newBookmark = session.getBookmark();
-    return { results, newBookmark, meta };
+    return { results, newBookmark, meta, d1Duration };
   } catch (error) {
     throw new Error(`Failed to get product from database: ${error.message}`);
   }
@@ -82,11 +82,13 @@ export const getProductFromDatabase = async (session, id: string) => {
 
 export const getProductsFromDatabase = async (session) => {
   try {
+    const tsStart = Date.now();
     const { results, meta } = await session
       .prepare("SELECT * FROM products")
       .run();
+    const d1Duration = Date.now() - tsStart;
     const newBookmark = session.getBookmark();
-    return { results, newBookmark, meta };
+    return { results, newBookmark, meta, d1Duration };
   } catch (error) {
     throw new Error(`Failed to get products from database: ${error.message}`);
   }
@@ -97,12 +99,14 @@ export const getProductsByCategoryFromDatabase = async (
   category: string
 ) => {
   try {
+    const tsStart = Date.now();
     const { results, meta } = await session
       .prepare("SELECT * FROM products WHERE category = ?")
       .bind(category)
       .run();
+    const d1Duration = Date.now() - tsStart;
     const newBookmark = session.getBookmark();
-    return { results, newBookmark, meta };
+    return { results, newBookmark, meta, d1Duration };
   } catch (error) {
     throw new Error(`Failed to get products from database: ${error.message}`);
   }

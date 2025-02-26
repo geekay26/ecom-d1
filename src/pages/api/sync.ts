@@ -28,7 +28,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
     console.log("bookmark in sync", cookies.get("product_bookmark")?.value);
     // Check if product exists
     const existingProduct = await getProductFromDatabase(session, id);
-    if (existingProduct.result) {
+    if (existingProduct.results.length > 0) {
       console.log("updating product");
       // Update existing product
       const { bookmark } = await updateProductInDatabase(db, id, product);

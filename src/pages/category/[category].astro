@@ -22,10 +22,8 @@ const session = db.withSession(bookmark);
 const { results: categoryResults } =
   await getAllCategoriesFromDatabase(session);
 
-const { results, newBookmark, meta } = await getProductsByCategoryFromDatabase(
-  session,
-  category
-);
+const { results, newBookmark, meta, d1Duration } =
+  await getProductsByCategoryFromDatabase(session, category);
 const categories = [
   ...new Set(categoryResults.map((p) => p.category)),
 ] as string[];
@@ -36,8 +34,9 @@ Astro.cookies.set("product_bookmark", newBookmark);
   <div class="mb-4">
     <DbMetadata
       region={meta.served_by_region}
-      duration={meta.duration}
+      queryDuration={meta.duration}
       isPrimary={meta.served_by_primary}
+      d1Duration={d1Duration}
     />
   </div>
   <CategoryNav categories={categories} activeCategory={category} />
