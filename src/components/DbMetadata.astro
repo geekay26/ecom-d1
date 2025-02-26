@@ -14,33 +14,23 @@ const { region, queryDuration, isPrimary, d1Duration } = Astro.props;
     class="font-medium"
     title="The geographic location of the database server">DB Region:</span
   >
-  <span title="Region code where this database instance is hosted"
-    >{region}</span
-  > |
+  <span>{region}</span> |
   <span
     class="font-medium"
     title="Indicates whether this is a primary database or a read replica"
     >Type:</span
   >
-  <span
-    class={isPrimary ? "text-blue-600" : "text-green-600"}
-    title={isPrimary
-      ? "Primary database handles both read and write operations"
-      : "Read replica handles only read operations"}
-  >
+  <span class={isPrimary ? "text-blue-600" : "text-green-600"}>
     {isPrimary ? "Primary" : "Replica"}
   </span> |
   <span class="font-medium" title="Time taken to execute the database query"
-    >Query Time:</span
+    >D1 Query Duration:</span
   >
-  <span title="Duration of the database query execution in milliseconds"
-    >{queryDuration.toFixed(2)}ms</span
-  > |
-  <span class="font-medium" title="Total time spent in Cloudflare D1 operations"
-    >DB Duration:</span
-  >
+  <span>{queryDuration.toFixed(2)}ms</span> |
   <span
+    class="font-medium"
     title="Total time taken by D1 operations including connection and query execution"
-    >{d1Duration.toFixed(2)}ms</span
+    >D1 Total Duration:</span
   >
+  <span>{d1Duration.toFixed(2)}ms</span>
 </div>
