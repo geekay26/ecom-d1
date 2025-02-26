@@ -68,13 +68,13 @@ export const getProductFromDatabase = async (session, id: string) => {
       throw new Error("No ID provided");
     }
 
-    const result = await session
+    const { results, meta } = await session
       .prepare("SELECT * FROM products WHERE id = ?")
       .bind(id)
-      .first();
+      .run();
 
     const newBookmark = session.getBookmark();
-    return { result, newBookmark };
+    return { results, newBookmark, meta };
   } catch (error) {
     throw new Error(`Failed to get product from database: ${error.message}`);
   }
@@ -97,12 +97,12 @@ export const getProductsByCategoryFromDatabase = async (
   category: string
 ) => {
   try {
-    const { results } = await session
+    const { results, meta } = await session
       .prepare("SELECT * FROM products WHERE category = ?")
       .bind(category)
       .run();
     const newBookmark = session.getBookmark();
-    return { results, newBookmark };
+    return { results, newBookmark, meta };
   } catch (error) {
     throw new Error(`Failed to get products from database: ${error.message}`);
   }

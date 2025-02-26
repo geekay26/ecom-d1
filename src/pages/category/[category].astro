@@ -6,6 +6,7 @@ import {
   getAllCategoriesFromDatabase,
   getProductsByCategoryFromDatabase,
 } from "../../lib/products";
+import DbMetadata from "../../components/DbMetadata.astro";
 
 const { category } = Astro.params;
 if (!category) {
@@ -21,7 +22,7 @@ const session = db.withSession(bookmark);
 const { results: categoryResults } =
   await getAllCategoriesFromDatabase(session);
 
-const { results, newBookmark } = await getProductsByCategoryFromDatabase(
+const { results, newBookmark, meta } = await getProductsByCategoryFromDatabase(
   session,
   category
 );
@@ -32,6 +33,13 @@ Astro.cookies.set("product_bookmark", newBookmark);
 ---
 
 <Layout title={`${category} Products`}>
+  <div class="mb-4">
+    <DbMetadata
+      region={meta.served_by_region}
+      duration={meta.duration}
+      isPrimary={meta.served_by_primary}
+    />
+  </div>
   <CategoryNav categories={categories} activeCategory={category} />
   <ProductGrid client:load products={results} />
 </Layout>

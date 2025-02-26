@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import ProductDetail from "../../components/ProductDetail";
 import { getProductFromDatabase } from "../../lib/products";
+import DbMetadata from "../../components/DbMetadata.astro";
 
 const { id } = Astro.params;
 if (!id) {
@@ -13,11 +14,21 @@ const bookmark = Astro.cookies.get("product_bookmark")?.value;
 const db = Astro.locals.runtime.env.DB;
 const session = db.withSession(bookmark);
 
-const { result, newBookmark } = await getProductFromDatabase(session, id);
+const { results, newBookmark, meta } = await getProductFromDatabase(
+  session,
+  id
+);
 
 Astro.cookies.set("product_bookmark", newBookmark);
 ---
 
-<Layout title={result.name}>
-  <ProductDetail client:load product={result} />
+<Layout title={results[0].name}>
+  <div class="mb-4">
+    <DbMetadata
+      region={meta.served_by_region}
+      duration={meta.duration}
+      isPrimary={meta.served_by_primary}
+    />
+  </div>
+  <ProductDetail client:load product={results[0]} />
 </Layout>
