@@ -25,22 +25,26 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
     const { id } = product;
     const db = locals.runtime.env.DB;
     const session = db.withSession("first-primary");
+
     console.log("bookmark in sync", cookies.get("product_bookmark")?.value);
+
     // Check if product exists
     const existingProduct = await getProductFromDatabase(session, id);
     if (existingProduct.results.length > 0) {
       console.log("updating product");
+
       // Update existing product
-      const { bookmark } = await updateProductInDatabase(db, id, product);
-      console.log("bookmark", bookmark);
+      const { bookmark } = await updateProductInDatabase(session, id, product);
+
       // set bookmark as cookie
       cookies.set("product_bookmark", bookmark, {
         path: "/",
         maxAge: 60 * 60 * 24 * 7,
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: false, // set to true in production
+        sameSite: "lax", // set to strict in production
       });
+
       return new Response(JSON.stringify({ message: "product updated" }), {
         status: 200,
         headers: {
@@ -50,16 +54,20 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
     } else {
       // Create new product
       console.log("creating product");
-      const { bookmark } = await createProductInDatabase(db, product);
+
+      const { bookmark } = await createProductInDatabase(session, product);
+
       console.log("bookmark", bookmark);
+
       // set bookmark as cookie
       cookies.set("product_bookmark", bookmark, {
         path: "/",
         maxAge: 60 * 60 * 24 * 7,
         httpOnly: true,
-        secure: true,
-        sameSite: "strict",
+        secure: false, // set to true in production
+        sameSite: "lax", // set to strict in production
       });
+
       return new Response(JSON.stringify({ message: "new prouct added" }), {
         status: 200,
         headers: {
@@ -75,13 +83,4 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
       },
     });
   }
-};
-
-export const GET: APIRoute = async () => {
-  return new Response(JSON.stringify({ message: "Hello World" }), {
-    status: 200,
-    headers: {
-      "content-type": "application/json",
-    },
-  });
 };

@@ -10,7 +10,7 @@ interface Product {
 }
 
 export const updateProductInDatabase = async (
-  db: D1Database,
+  session,
   id: string,
   product: Partial<Product>
 ) => {
@@ -28,7 +28,6 @@ export const updateProductInDatabase = async (
       .filter(([_, value]) => value !== undefined)
       .map(([_, value]) => value);
 
-    const session = db.withSession("first-primary");
     const statement = session.prepare(
       `UPDATE products SET ${updates} WHERE id = ?`
     );
@@ -40,7 +39,7 @@ export const updateProductInDatabase = async (
 };
 
 export const createProductInDatabase = async (
-  db: D1Database,
+  session,
   product: Omit<Product, "created_at" | "last_updated">
 ) => {
   try {
@@ -48,8 +47,7 @@ export const createProductInDatabase = async (
     const fields = [...Object.keys(product), "created_at", "last_updated"];
 
     const values = [...Object.values(product), now, now];
-    console.log(values);
-    const session = db.withSession("first-primary");
+
     const statement = session.prepare(
       `INSERT INTO products (${fields.join(", ")}) VALUES (${fields
         .map(() => "?")
@@ -82,12 +80,19 @@ export const getProductFromDatabase = async (session, id: string) => {
 
 export const getProductsFromDatabase = async (session) => {
   try {
+    // used to measure the total duration
     const tsStart = Date.now();
+
+    // get all products from the database
     const { results, meta } = await session
       .prepare("SELECT * FROM products")
       .run();
+
+    // Calculate the total duration
     const d1Duration = Date.now() - tsStart;
+
     const newBookmark = session.getBookmark();
+
     return { results, newBookmark, meta, d1Duration };
   } catch (error) {
     throw new Error(`Failed to get products from database: ${error.message}`);
